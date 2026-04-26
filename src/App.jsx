@@ -14,7 +14,7 @@ const CONFIG = {
     name: '탁진혁',
     father: '탁병철',
     mother: '김남덕',
-    phone: '01012345678',
+    phone: '01038925193',
     accounts: [
       { bank: '국민은행', number: '123-456-789-00', holder: '탁진혁', label: '' },
       { bank: '신한은행', number: '110-123-456789', holder: '탁병철', label: '부' },
@@ -25,7 +25,7 @@ const CONFIG = {
     name: '조수민',
     father: '조규성',
     mother: '우선희',
-    phone: '01098765432',
+    phone: '01050290347',
     accounts: [
       { bank: '카카오뱅크', number: '3333-01-2345678', holder: '조수민', label: '' },
       { bank: '하나은행', number: '123-456789-01011', holder: '조규성', label: '부' },
@@ -94,21 +94,55 @@ function SectionDivider() {
 }
 
 // ─────────────────────────────────────────
+// 벚꽃 SVG 꽃잎
+// ─────────────────────────────────────────
+const PETAL_COLORS = ['#ffb7c5', '#ffc0cb', '#ffccd5', '#ff91a4', '#ffe4ea', '#ffd6df'];
+
+function CherryPetalSVG({ id, size, color }) {
+  const gId = `cpg${id}`;
+  return (
+    <svg width={size} height={size * 1.3} viewBox="0 0 32 42" style={{ filter: 'drop-shadow(0 1px 2px rgba(255,150,170,0.3))' }}>
+      <defs>
+        <radialGradient id={gId} cx="45%" cy="28%" r="72%">
+          <stop offset="0%" stopColor="#fff" stopOpacity="0.85" />
+          <stop offset="55%" stopColor={color} stopOpacity="0.9" />
+          <stop offset="100%" stopColor={color} stopOpacity="1" />
+        </radialGradient>
+      </defs>
+      {/* 꽃잎 몸체 — 상단에 살짝 오목한 하트형 */}
+      <path
+        d="M16,2 C12,2 4,7 3,15 C2,25 8,36 16,40 C24,36 30,25 29,15 C28,7 20,2 16,2 Z"
+        fill={`url(#${gId})`}
+      />
+      {/* 중심 맥 */}
+      <path d="M16,5 Q16,22 16,39" stroke="white" strokeWidth="0.9" strokeOpacity="0.45" fill="none" strokeLinecap="round" />
+      {/* 옆 맥 */}
+      <path d="M16,14 Q21,18 27,17" stroke="white" strokeWidth="0.6" strokeOpacity="0.3" fill="none" />
+      <path d="M16,14 Q11,18 5,17"  stroke="white" strokeWidth="0.6" strokeOpacity="0.3" fill="none" />
+      <path d="M16,24 Q22,27 27,25" stroke="white" strokeWidth="0.5" strokeOpacity="0.25" fill="none" />
+      <path d="M16,24 Q10,27 5,25"  stroke="white" strokeWidth="0.5" strokeOpacity="0.25" fill="none" />
+    </svg>
+  );
+}
+
+// ─────────────────────────────────────────
 // 1. 메인 커버
 // ─────────────────────────────────────────
 function CoverSection() {
-  const [petals, setPetals] = useState([]);
-
-  useEffect(() => {
-    const items = Array.from({ length: 12 }, (_, i) => ({
+  const [petals] = useState(() => {
+    const vh = typeof window !== 'undefined' ? window.innerHeight : 800;
+    return Array.from({ length: 20 }, (_, i) => ({
       id: i,
-      left: Math.random() * 100,
-      delay: Math.random() * 6,
-      duration: 6 + Math.random() * 4,
-      size: 8 + Math.random() * 8,
+      left: 2 + Math.random() * 92,
+      delay: Math.random() * 14,
+      duration: 11 + Math.random() * 9,
+      size: 10 + Math.random() * 18,
+      color: PETAL_COLORS[i % PETAL_COLORS.length],
+      initRotate: Math.random() * 360,
+      swayX: (Math.random() - 0.5) * 110,
+      vh,
     }));
-    setPetals(items);
-  }, []);
+  });
 
   return (
     <section className="relative w-full h-screen overflow-hidden bg-stone-100">
@@ -122,16 +156,28 @@ function CoverSection() {
       {/* Gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/60" />
 
-      {/* Falling petals */}
+      {/* 벚꽃 꽃잎 */}
       {petals.map((p) => (
         <motion.div
           key={p.id}
-          className="absolute top-0 pointer-events-none"
-          style={{ left: `${p.left}%` }}
-          animate={{ y: ['0vh', '105vh'], rotate: [0, 360], opacity: [0, 1, 0.8, 0] }}
-          transition={{ duration: p.duration, delay: p.delay, repeat: Infinity, ease: 'linear' }}
+          className="absolute pointer-events-none"
+          style={{ left: `${p.left}%`, top: '-60px' }}
+          animate={{
+            y: [0, p.vh * 0.2, p.vh * 0.5, p.vh * 0.8, p.vh + 70],
+            x: [0, p.swayX * 0.5, p.swayX, p.swayX * 0.3, p.swayX * 0.7],
+            rotate: [p.initRotate, p.initRotate + 120, p.initRotate + 240, p.initRotate + 300, p.initRotate + 360],
+            opacity: [0, 0.95, 0.95, 0.75, 0],
+          }}
+          transition={{
+            duration: p.duration,
+            delay: p.delay,
+            repeat: Infinity,
+            ease: 'linear',
+            x: { ease: 'easeInOut', duration: p.duration, delay: p.delay, repeat: Infinity },
+            opacity: { times: [0, 0.08, 0.8, 0.94, 1], duration: p.duration, delay: p.delay, repeat: Infinity },
+          }}
         >
-          <span style={{ fontSize: p.size, color: '#fda4af' }}>🌸</span>
+          <CherryPetalSVG id={p.id} size={p.size} color={p.color} />
         </motion.div>
       ))}
 
@@ -809,39 +855,32 @@ function GiftSection() {
 // ─────────────────────────────────────────
 function ShareSection() {
   const [linkCopied, setLinkCopied] = useState(false);
+  const [kakaoState, setKakaoState] = useState('idle'); // 'idle' | 'fallback'
 
   const handleLinkCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      setLinkCopied(true);
-      setTimeout(() => setLinkCopied(false), 2500);
-    } catch {
-      setLinkCopied(true);
-      setTimeout(() => setLinkCopied(false), 2500);
-    }
+    try { await navigator.clipboard.writeText(window.location.href); } catch {}
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 2500);
   };
 
-  const handleKakaoShare = () => {
-    if (window.Kakao && window.Kakao.isInitialized()) {
-      window.Kakao.Share.sendDefault({
-        objectType: 'feed',
-        content: {
-          title: '탁진혁 ♥ 조수민 결혼합니다',
-          description: '2026년 9월 13일 일요일 오전 11시\n잠실 더컨벤션 그랜드볼룸',
-          imageUrl: CONFIG.gallery[0],
-          link: { mobileWebUrl: window.location.href, webUrl: window.location.href },
-        },
-      });
-    } else {
-      // Fallback: Web Share API
-      if (navigator.share) {
-        navigator.share({
-          title: '탁진혁 ♥ 조수민 결혼합니다',
-          text: '2026년 9월 13일 일요일 오전 11시, 잠실 더컨벤션 그랜드볼룸',
-          url: window.location.href,
-        });
+  const handleKakaoShare = async () => {
+    const shareData = {
+      title: '탁진혁 ♥ 조수민 결혼합니다',
+      text: '2026년 9월 13일 일요일 오전 11시\n잠실 더컨벤션 그랜드볼룸',
+      url: window.location.href,
+    };
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch (e) {
+        if (e.name === 'AbortError') return; // 사용자가 직접 닫음
       }
     }
+    // navigator.share 미지원 (PC 등) → 링크 복사 후 안내
+    try { await navigator.clipboard.writeText(window.location.href); } catch {}
+    setKakaoState('fallback');
+    setTimeout(() => setKakaoState('idle'), 3500);
   };
 
   return (
@@ -852,12 +891,22 @@ function ShareSection() {
         <div className="space-y-3">
           <button
             onClick={handleKakaoShare}
-            className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl bg-yellow-400 active:bg-yellow-500 transition-colors"
+            className={`w-full flex items-center justify-center gap-3 py-4 rounded-2xl transition-all ${
+              kakaoState === 'fallback'
+                ? 'bg-green-400 active:bg-green-500'
+                : 'bg-yellow-400 active:bg-yellow-500'
+            }`}
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 5.813 2 10.5c0 2.994 1.94 5.623 4.88 7.14l-.93 3.43a.375.375 0 0 0 .548.415L10.5 19.07c.493.05.997.077 1.5.077 5.523 0 10-3.813 10-8.5S17.523 2 12 2z" fill="#3C1E1E"/>
-            </svg>
-            <span className="font-gothic text-yellow-900 font-bold text-sm">카카오톡으로 공유하기</span>
+            {kakaoState === 'fallback' ? (
+              <Check size={20} className="text-white" />
+            ) : (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 5.813 2 10.5c0 2.994 1.94 5.623 4.88 7.14l-.93 3.43a.375.375 0 0 0 .548.415L10.5 19.07c.493.05.997.077 1.5.077 5.523 0 10-3.813 10-8.5S17.523 2 12 2z" fill="#3C1E1E"/>
+              </svg>
+            )}
+            <span className={`font-gothic font-bold text-sm ${kakaoState === 'fallback' ? 'text-white' : 'text-yellow-900'}`}>
+              {kakaoState === 'fallback' ? '링크 복사됨! 카카오톡에 붙여넣기 하세요' : '카카오톡으로 공유하기'}
+            </span>
           </button>
           <button
             onClick={handleLinkCopy}
