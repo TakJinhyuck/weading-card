@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Nanum+Gothic:wght@400;700&display=swap');
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #fafaf9;
+  font-family: 'Nanum Gothic', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  display: flex;
+  justify-content: center;
+  background-color: #f5f5f4;
+  min-height: 100vh;
+}
+
+.font-myeongjo {
+  font-family: 'Nanum Myeongjo', Georgia, serif;
+}
+
+.font-gothic {
+  font-family: 'Nanum Gothic', system-ui, sans-serif;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 0;
+  background: transparent;
+}
+
+/* Prevent pull-to-refresh on mobile */
+body {
+  overscroll-behavior-y: contain;
+}
+
+/* Mobile-first container */
+.mobile-container {
+  width: 100%;
+  max-width: 430px;
+  min-height: 100vh;
+  background-color: #ffffff;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
+  overflow-x: hidden;
+}
+
+/* Smooth transitions */
+.transition-smooth {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Divider ornament */
+.divider-ornament::before,
+.divider-ornament::after {
+  content: '';
+  display: inline-block;
+  width: 40px;
+  height: 1px;
+  background: currentColor;
+  vertical-align: middle;
+  margin: 0 12px;
+}
