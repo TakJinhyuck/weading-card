@@ -229,30 +229,22 @@ function CoverSection() {
 // 2. 인사말 섹션
 // ─────────────────────────────────────────
 function GreetingSection() {
+  const [showContact, setShowContact] = useState(false);
+
   return (
-    <section className="px-8 py-16 bg-white">
+    <section className="px-8 py-14 bg-white">
       <FadeIn>
         <div className="text-center mb-8">
           <p className="font-gothic text-xs text-rose-400 tracking-[0.25em] uppercase mb-6">Greeting</p>
           <p className="font-myeongjo text-stone-700 text-[15px] leading-9 tracking-wide">
-            서로가 마주보며 다져온 사랑을<br />
-            이제 함께 한 곳을 바라보며<br />
-            걸어가고자 합니다.
+            여행지에서 우연히 마주친 설렘이<br />
+            이제는 평생을 함께할 약속이 되었습니다.<br />
+            저희의 새로운 여정을 함께 축복해주세요.
           </p>
         </div>
       </FadeIn>
 
       <FadeIn delay={0.15}>
-        <div className="text-center mt-6">
-          <p className="font-gothic text-stone-500 text-[13px] leading-8">
-            저희 두 사람이 사랑으로 만나<br />
-            이제 한 가정을 이루게 되었습니다.<br />
-            오셔서 축복해 주시면 감사하겠습니다.
-          </p>
-        </div>
-      </FadeIn>
-
-      <FadeIn delay={0.3}>
         <SectionDivider />
         <div className="mt-6 space-y-4">
           {/* Groom Family */}
@@ -277,15 +269,63 @@ function GreetingSection() {
             </p>
           </div>
         </div>
+
+        <button
+          onClick={() => setShowContact(true)}
+          className="w-full mt-8 py-3.5 rounded-2xl bg-rose-50 border border-rose-100 font-gothic text-rose-400 text-sm tracking-wider active:bg-rose-100 transition-colors"
+        >
+          연락하기
+        </button>
       </FadeIn>
+
+      <AnimatePresence>
+        {showContact && (
+          <ContactAllModal onClose={() => setShowContact(false)} />
+        )}
+      </AnimatePresence>
     </section>
   );
 }
 
 // ─────────────────────────────────────────
-// 3. 연락하기 섹션
+// 3. 연락하기 모달 (통합)
 // ─────────────────────────────────────────
-function ContactModal({ person, data, onClose }) {
+const CONTACT_LIST = [
+  { role: '신랑',      name: CONFIG.groom.name,   phone: CONFIG.groom.phone },
+  { role: '신랑 아버지', name: CONFIG.groom.father, phone: null },
+  { role: '신랑 어머니', name: CONFIG.groom.mother, phone: null },
+  { role: '신부',      name: CONFIG.bride.name,   phone: CONFIG.bride.phone },
+  { role: '신부 아버지', name: CONFIG.bride.father, phone: null },
+  { role: '신부 어머니', name: CONFIG.bride.mother, phone: null },
+];
+
+function ContactAllModal({ onClose }) {
+  const groomSide = CONTACT_LIST.slice(0, 3);
+  const brideSide = CONTACT_LIST.slice(3);
+
+  const ContactRow = ({ role, name, phone }) => (
+    <div className="flex items-center py-3.5 border-b border-stone-100 last:border-0">
+      <span className="font-gothic text-stone-400 text-[13px] w-[90px] shrink-0">{role}</span>
+      <span className="font-myeongjo text-stone-700 text-sm flex-1">{name}</span>
+      {phone && (
+        <div className="flex gap-2">
+          <a
+            href={`tel:${phone}`}
+            className="w-9 h-9 rounded-full bg-rose-50 flex items-center justify-center active:bg-rose-100 transition-colors"
+          >
+            <Phone size={16} className="text-rose-400" />
+          </a>
+          <a
+            href={`sms:${phone}`}
+            className="w-9 h-9 rounded-full bg-stone-50 flex items-center justify-center active:bg-stone-100 transition-colors"
+          >
+            <MessageSquare size={16} className="text-stone-400" />
+          </a>
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <motion.div
       className="fixed inset-0 z-50 flex items-end justify-center"
@@ -296,84 +336,32 @@ function ContactModal({ person, data, onClose }) {
     >
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
       <motion.div
-        className="relative bg-white rounded-t-3xl w-full max-w-[430px] px-8 py-8 pb-12"
+        className="relative bg-white rounded-t-3xl w-full max-w-[430px] px-6 pt-6 pb-12"
         initial={{ y: '100%' }}
         animate={{ y: 0 }}
         exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 28, stiffness: 300 }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="w-10 h-1 bg-stone-200 rounded-full mx-auto mb-6" />
-        <p className="font-myeongjo text-center text-stone-700 text-lg mb-6">
-          {person}에게 연락하기
-        </p>
-        <div className="grid grid-cols-2 gap-3">
-          <a
-            href={`tel:${data.phone}`}
-            className="flex flex-col items-center gap-2 py-5 rounded-2xl bg-rose-50 active:bg-rose-100 transition-colors"
-          >
-            <Phone size={24} className="text-rose-400" />
-            <span className="font-gothic text-sm text-stone-600">전화하기</span>
-          </a>
-          <a
-            href={`sms:${data.phone}`}
-            className="flex flex-col items-center gap-2 py-5 rounded-2xl bg-stone-50 active:bg-stone-100 transition-colors"
-          >
-            <MessageSquare size={24} className="text-stone-400" />
-            <span className="font-gothic text-sm text-stone-600">문자 보내기</span>
-          </a>
+        <div className="w-10 h-1 bg-stone-200 rounded-full mx-auto mb-5" />
+        <div className="flex items-center justify-between mb-4">
+          <p className="font-myeongjo text-stone-700 text-lg">연락하기</p>
+          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center">
+            <X size={18} className="text-stone-400" />
+          </button>
         </div>
-        <button
-          onClick={onClose}
-          className="w-full mt-4 py-3 rounded-2xl border border-stone-200 font-gothic text-sm text-stone-400 active:bg-stone-50 transition-colors"
-        >
-          닫기
-        </button>
+
+        <div>
+          {groomSide.map((c) => <ContactRow key={c.role} {...c} />)}
+        </div>
+
+        <div className="h-px bg-stone-100 my-2" />
+
+        <div>
+          {brideSide.map((c) => <ContactRow key={c.role} {...c} />)}
+        </div>
       </motion.div>
     </motion.div>
-  );
-}
-
-function ContactSection() {
-  const [modal, setModal] = useState(null);
-
-  return (
-    <section className="px-6 py-12 bg-stone-50">
-      <FadeIn>
-        <p className="font-gothic text-xs text-rose-400 tracking-[0.25em] uppercase text-center mb-6">Contact</p>
-        <div className="grid grid-cols-2 gap-3">
-          <button
-            onClick={() => setModal('groom')}
-            className="flex flex-col items-center gap-2 py-5 rounded-2xl bg-white shadow-sm border border-stone-100 active:scale-95 transition-all"
-          >
-            <div className="w-10 h-10 rounded-full bg-rose-50 flex items-center justify-center">
-              <Phone size={18} className="text-rose-400" />
-            </div>
-            <span className="font-myeongjo text-stone-700 text-sm">신랑 탁진혁</span>
-            <span className="font-gothic text-stone-400 text-xs">연락하기</span>
-          </button>
-          <button
-            onClick={() => setModal('bride')}
-            className="flex flex-col items-center gap-2 py-5 rounded-2xl bg-white shadow-sm border border-stone-100 active:scale-95 transition-all"
-          >
-            <div className="w-10 h-10 rounded-full bg-rose-50 flex items-center justify-center">
-              <Phone size={18} className="text-rose-400" />
-            </div>
-            <span className="font-myeongjo text-stone-700 text-sm">신부 조수민</span>
-            <span className="font-gothic text-stone-400 text-xs">연락하기</span>
-          </button>
-        </div>
-      </FadeIn>
-
-      <AnimatePresence>
-        {modal === 'groom' && (
-          <ContactModal person="신랑 탁진혁" data={CONFIG.groom} onClose={() => setModal(null)} />
-        )}
-        {modal === 'bride' && (
-          <ContactModal person="신부 조수민" data={CONFIG.bride} onClose={() => setModal(null)} />
-        )}
-      </AnimatePresence>
-    </section>
   );
 }
 
@@ -624,24 +612,22 @@ function GallerySection() {
 // ─────────────────────────────────────────
 const TRANSPORT_TABS = [
   { id: 'subway', label: '지하철', icon: Train },
-  { id: 'car', label: '자차', icon: Car },
   { id: 'bus', label: '버스', icon: Bus },
+  { id: 'car', label: '자가용', icon: Car },
 ];
 
 const TRANSPORT_INFO = {
   subway: [
-    { line: '2호선', info: '잠실역 8번 출구에서 도보 5분' },
-    { line: '8호선', info: '잠실역 9번 출구에서 도보 1분' },
-  ],
-  car: [
-    { line: '내비게이션', info: '"잠실 더컨벤션" 검색' },
-    { line: '주차', info: '건물 내 주차장 이용 (2시간 무료)' },
-    { line: '발렛', info: '정문 앞 발렛파킹 서비스 운영' },
+    { line: '2·8호선', info: '잠실역 9번 출구 (도보 3분)' },
   ],
   bus: [
-    { line: '간선버스', info: '30-5, 303, 320번' },
-    { line: '지선버스', info: '2412, 3216, 3217번' },
-    { line: '정류장', info: '잠실역 정류장 하차 후 도보 2분' },
+    { line: '지선', info: '2415, 3216, 3313, 3315, 3318, 3319, 3323, 3411, 3412, 3413, 3414, 4318, 4319, 8331' },
+    { line: '간선', info: '341, 342' },
+    { line: '광역', info: '1100, 1670, 1700, 2000, 3302, 7007, 8001, 9303, M5333' },
+  ],
+  car: [
+    { line: '주차', info: '지상·지하주차장 (2시간 무료주차)' },
+    { line: '안내', info: '주차난이 예상되오니 대중교통 이용을 권장드립니다' },
   ],
 };
 
@@ -664,34 +650,20 @@ function LocationSection() {
           </div>
         </div>
 
-        {/* Static Map */}
-        <div className="rounded-2xl overflow-hidden border border-stone-100 mb-4 relative">
-          <img
-            src="https://images.unsplash.com/photo-1524661135-423995f22d0b?w=800&q=80"
-            alt="지도"
-            className="w-full h-44 object-cover opacity-80"
+        {/* Naver Map iframe */}
+        <div className="rounded-2xl overflow-hidden border border-stone-100 mb-4">
+          <iframe
+            src="https://maps.google.com/maps?q=37.5126,127.0983&z=17&output=embed&hl=ko"
+            className="w-full h-52"
+            style={{ border: 0 }}
+            title="잠실 더컨벤션 오시는 길"
+            loading="lazy"
+            allowFullScreen
           />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="bg-white/90 backdrop-blur-sm rounded-xl px-4 py-2 shadow-sm">
-              <div className="flex items-center gap-2">
-                <MapPin size={16} className="text-rose-400" />
-                <span className="font-gothic text-stone-700 text-sm">{venue}</span>
-              </div>
-            </div>
-          </div>
         </div>
 
-        {/* Map Buttons */}
+        {/* Map Buttons — 네이버 먼저 */}
         <div className="grid grid-cols-2 gap-2 mb-6">
-          <a
-            href={kakaoMapUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 py-3 rounded-xl bg-yellow-400 active:bg-yellow-500 transition-colors"
-          >
-            <Navigation size={15} className="text-yellow-900" />
-            <span className="font-gothic text-yellow-900 text-sm">카카오맵</span>
-          </a>
           <a
             href={naverMapUrl}
             target="_blank"
@@ -700,6 +672,15 @@ function LocationSection() {
           >
             <Navigation size={15} className="text-white" />
             <span className="font-gothic text-white text-sm">네이버지도</span>
+          </a>
+          <a
+            href={kakaoMapUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 py-3 rounded-xl bg-yellow-400 active:bg-yellow-500 transition-colors"
+          >
+            <Navigation size={15} className="text-yellow-900" />
+            <span className="font-gothic text-yellow-900 text-sm">카카오맵</span>
           </a>
         </div>
 
@@ -959,11 +940,7 @@ export default function App() {
 
           <GreetingSection />
 
-          <div className="h-px bg-stone-100 mx-6" />
-
-          <ContactSection />
-
-          <div className="h-px bg-stone-100 mx-6" />
+          <div className="h-2 bg-stone-100" />
 
           <CalendarSection />
 
